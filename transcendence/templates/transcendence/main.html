@@ -1,0 +1,484 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transcendence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'transcendence/css/edit_profile.css' %}">
+    <script type="importmap">
+        {
+        "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/",
+                "three/examples/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/"
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.1.0/fontfaceobserver.standalone.js"></script>
+    <script type='module' src='{% static 'transcendence/game_local.js' %}'></script>
+    <script type='module' src='{% static 'transcendence/game.js' %}'></script>
+    <script>
+        function remove_friend(friendshipId) {
+            fetch(`/friends/remove_friend/${friendshipId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'friendship_id': friendshipId})
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const doc = document.getElementById("friend-" + friendshipId);
+                        doc.parentElement.remove();
+                    } else {
+                        alert('Failed to remove friend: ' + data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function accept_friend(event, requestId, username) {
+            event.preventDefault();
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch("/friends/accept_friend_request/" + requestId + '/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const ulist = document.getElementById("friend-list");
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        const button = document.createElement('button');
+                        a.setAttribute('href', '#view-profile?' + username);
+                        a.innerText = username;
+                        li.appendChild(a);
+                        button.innerText = "Remove friend";
+                        button.setAttribute('class', 'remove-friend-btn');
+                        button.setAttribute('id', 'friend-' + requestId);
+                        button.setAttribute('onclick', `remove_friend('${requestId}')`); // todo : maybe change this
+                        li.appendChild(button);
+                        ulist.appendChild(li);
+                        const friendrequest = document.getElementById("friend-request-" + requestId);
+                        friendrequest.remove();
+                    } else {
+                        alert('Error accepting friend request.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function decline_friend(event, requestId) {
+            event.preventDefault();
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch("/friends/decline_friend_request/" + requestId + '/', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const friendrequest = document.getElementById("friend-request-" + requestId);
+                        friendrequest.remove();
+                    } else {
+                        alert('Error declining friend request.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function delete_profile() {
+            const button = document.getElementById("delete_button");
+            button.addEventListener('click', function () {
+                fetch('/profile/delete/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/register/';
+                        } else {
+                            alert('Failed to delete account: ' + data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        }
+
+        function edit_profile() {
+            fetch('/profile/edit/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Pb pour edit profile');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("mainContainer").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erreur edit profile:', error);
+                });
+
+        }
+
+        function form_edit_profile() {
+            const updateForm = document.getElementById('updateForm');
+            console.log("updateFORM here :", updateForm);
+            if (updateForm) {
+                console.log("updateFORM here :", updateForm);
+                updateForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(updateForm);
+                    const csrfToken = formData.get('csrfmiddlewaretoken');
+
+                    console.log("Form submission intercepted");
+                    fetch("{% url 'transcendence:edit_profile' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: formData
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error('Network response was not success');
+                            }
+                        })
+                        .then(data => {
+                            console.log('Success:', data);
+                            if (data.success) {
+                                document.getElementById("status").innerText = "Profile updated";
+                            } else {
+                                document.getElementById("status").innerText = data.message;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                });
+            } else {
+                console.error('Form with ID updateForm not found');
+            }
+        }
+
+        function uploadpdp() {
+            fetch('/uploadpdp/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Pb pour upload pdp');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("mainContainer").innerHTML = html;
+                    changepdp();
+
+                })
+                .catch(error => {
+                    console.error('Erreur upload pdp:', error);
+                });
+        }
+
+        function changepdp() {
+            document.getElementById('change-pdp-form').addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const formData = new FormData();
+                const avatarInput = document.getElementById('avatar');
+
+                if (avatarInput.files.length > 0) {
+                    formData.append('avatar', avatarInput.files[0]);
+                }
+
+                try {
+                    fetch('/uploadpdp/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error('Network response was not success');
+                            }
+                        })
+
+                        .then(data => {
+                            console.log('Success:', data);
+                            if (data.success) {
+                                document.getElementById('error-message').innerText = 'Profile picture updated';
+                            } else {
+                                document.getElementById('error-message').innerText = data.message;
+                            }
+                        })
+
+                        .catch(error => {
+                            console.error('Error:', error);
+                            document.getElementById('error-message').innerText = 'An error occurred';
+                        });
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    document.getElementById('error-message').innerText = 'Une erreur s\'est produite.';
+                }
+            });
+        }
+
+        async function create_tournament(pseudo, pseudo_tournament) {
+            const nameTournament = document.getElementById('nameTournament').value;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            const formData = new URLSearchParams();
+            formData.append('name', nameTournament);
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            try {
+                const response = await fetch("{% url 'transcendence:create_tournament' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData.toString()
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const tournament_list = document.getElementById("tournament-list");
+                    const new_tournament = document.createElement('li');
+                    new_tournament.setAttribute('id', `li-tournament-${result.id}`);
+                    const title_tournament = document.createElement('h3');
+                    title_tournament.innerText = nameTournament;
+                    new_tournament.appendChild(title_tournament);
+                    const button_quit_tournament = document.createElement('button')
+                    button_quit_tournament.innerText = 'Quit';
+                    button_quit_tournament.setAttribute('id', `quit-button-${result.id}`);
+                    button_quit_tournament.setAttribute('onclick', `quit_tournament(${result.id}, '${pseudo}')`)
+                    new_tournament.appendChild(button_quit_tournament);
+                    const p = document.createElement('p');
+                    p.innerText = 'Users:';
+                    new_tournament.appendChild(p);
+                    const ulist = document.createElement('ul');
+                    ulist.setAttribute('id', `list_users_${result.id}`);
+                    const user_li = document.createElement('li');
+                    user_li.setAttribute('id', `acc-${pseudo}-${result.id}`);
+                    user_li.innerText = pseudo;
+                    ulist.appendChild(user_li);
+                    new_tournament.appendChild(ulist);
+                    const button_delete_tournament = document.createElement('button');
+                    button_delete_tournament.innerText = 'Delete tournament';
+                    button_delete_tournament.setAttribute('onclick', `delete_tournament(${result.id})`);
+                    new_tournament.appendChild(button_delete_tournament);
+                    const div_games_list = document.createElement('div');
+                    div_games_list.setAttribute('class', 'games-list');
+                    const games_h3 = document.createElement('h3');
+                    games_h3.innerText = 'Games';
+                    div_games_list.appendChild(games_h3);
+                    new_tournament.appendChild(div_games_list);
+                    tournament_list.appendChild(new_tournament);
+                } else {
+                    console.error(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function view_profile() {
+            username = window.location.hash.split('?')[1];
+            event.preventDefault();
+            fetch('/profile/' + username + '/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Pb pour profile');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.getElementById("mainContainer").innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erreur profile:', error);
+                });
+        }
+
+        function add_friend_view(username) {
+            if (username !== '') {
+                console.log("Adding friend:", username);
+                fetch(`/friends/send_friend_request/${username}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({username: username})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        if (data.success) {
+                            document.getElementById("addFriendStatus").innerText = "Requested as a friend";
+                        } else {
+                            document.getElementById("addFriendStatus").innerText = data.message;
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        document.getElementById("addFriendStatus").innerText = "Il y'a eu une erreur";
+                    });
+            }
+
+        }
+
+        function choose_pseudo(username) {
+            event.preventDefault();
+            const pseudo = document.getElementById("pseudo").value;
+            if (pseudo !== '') {
+                console.log("Pseudo for the tournament is :", pseudo);
+                console.log("Username is :", username);
+                fetch(`/choose-pseudo/${username}/${pseudo}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({username: username, pseudo: pseudo})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                        if (data.success) {
+                            fetch('/tournaments/')
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Pb pour tournaments');
+                                    }
+                                    return response.text();
+                                })
+                                .then(html => {
+                                    document.getElementById("mainContainer").innerHTML = html;
+                                })
+                                .catch(error => {
+                                    console.error('Erreur tournaments:', error);
+                                });
+
+
+                        } else {
+                            document.getElementById("message").innerText = data.message;
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                        document.getElementById("message").innerText = "Il y'a eu une erreur";
+                    });
+
+            }
+        }
+
+        function join_tournament(tournamentId, username) {
+            fetch(`/tournaments/join/${tournamentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const joinButton = document.getElementById(`join-button-${tournamentId}`)
+                        joinButton.textContent = "Quit";
+                        joinButton.setAttribute("onclick", `quit_tournament(${tournamentId}, '${username}')`);
+                        joinButton.setAttribute("id", `quit-button-${tournamentId}`);
+                        const userList = document.getElementById(`list_users_${tournamentId}`);
+                        const newUserItem = document.createElement('li');
+                        newUserItem.setAttribute("id", `acc-${username}-${tournamentId}`)
+                        newUserItem.textContent = username;
+                        userList.appendChild(newUserItem);
+                        tournaments();
+                    } else {
+                        console.error('Failed to join the tournament');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function quit_tournament(tournamentId, username) {
+            fetch(`/tournaments/quit/${tournamentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById(`acc-${username}-${tournamentId}`).remove();
+                        const joinButton = document.getElementById(`quit-button-${tournamentId}`)
+                        joinButton.textContent = "Join";
+                        joinButton.setAttribute("onclick", `join_tournament(${tournamentId}, '${username}')`);
+                        joinButton.setAttribute("id", `join-button-${tournamentId}`);
+                    } else {
+                        console.error('Failed to quit the tournament');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function delete_tournament(tournamentId) {
+            fetch(`/tournaments/delete/${tournamentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById(`li-tournament-${tournamentId}`).remove();
+                    } else {
+                        console.error('Failed to delete the tournament');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+    </script>
+</head>
+<body>
+{% csrf_token %}
+{% include 'transcendence/navbar.html' %}
+<div id="mainContainer">
+
+</div>
+</body>
+</html>

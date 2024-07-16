@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify profile - Transcendence</title>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div id="status"></div>
+            <form id="updateForm">
+                {% csrf_token %}
+                {{ user_form.username }}
+                {% if account %}
+                    {{ password_form.old_password }}
+                    {{ password_form.new_password1 }}
+                    {{ password_form.new_password2 }}
+                {% endif %}
+                <button type="submit" class="btn btn-primary" onclick="form_edit_profile()">Update</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

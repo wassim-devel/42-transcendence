@@ -1,0 +1,57 @@
+body {
+    background: #1a1a1a;
+    color: #ffcc00;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    text-shadow: 1px 1px #000;
+}
+
+#friend-list, #request-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#friend-list li, #request-list li {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #ffcc00;
+    border-radius: 4px;
+    background-color: #333;
+}
+
+#friend-list li a, #request-list li {
+    color: #ffcc00;
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+#friend-list li button, #request-list li form button {
+    margin-left: 10px;
+    background-color: #ffcc00;
+    border: none;
+    color: #1a1a1a;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#friend-list li button:hover, #request-list li form button:hover {
+    background-color: #ff0000; /* Couleur de fond au survol */
+    color: #fff; /* Couleur du texte au survol */
+}

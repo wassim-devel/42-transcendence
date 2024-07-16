@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="{% static 'transcendence/css/leaderboard.css' %}">
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+</head>
+<body>
+<div class="content">
+    <div class="leaderboard-container">
+        <h2>Leaderboard</h2>
+        <ul class="leaderboard-list">
+            {% for account in accounts %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>{{ forloop.counter }}</span>
+                    <span><a href="#view_profile?{{ account.user.username }}">{{ account.user.username }}</a></span>
+                    <span>Score : {{ account.score }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

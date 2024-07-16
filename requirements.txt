@@ -1,0 +1,9 @@
+Django
+psycopg
+Pillow
+django-oauth-toolkit
+channels==4.0.0
+daphne==4.0.0
+pygame==2.6.0
+channels_redis
+python-decouple

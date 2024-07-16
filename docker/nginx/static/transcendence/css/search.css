@@ -1,0 +1,39 @@
+body {
+    background: #1a1a1a;
+    color: #ffcc00;
+    font-family: 'Press Start 2P', cursive;
+}
+.container {
+    margin-top: 50px;
+}
+h1 {
+    text-align: center;
+    text-shadow: 2px 2px #000;
+}
+.list-group-item {
+    background-color: #1a1a1a;
+    border: 2px solid #ffcc00;
+    color: #ffcc00;
+    text-shadow: 1px 1px #000;
+}
+.list-group-item .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.btn-primary {
+    background-color: #ff8800;
+    border: none;
+    font-family: 'Press Start 2P', cursive;
+}
+.btn-primary:hover {
+    background-color: #ff5500;
+}
+a {
+    color: #ffcc00;
+    text-decoration: none;
+}
+a:hover {
+    color: #fff;
+    text-shadow: 1px 1px #ff0000;
+}

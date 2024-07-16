@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connection</title>
+    <link rel="stylesheet" href="{% static 'transcendence/css/login.css' %}">
+</head>
+<body>
+<div class="login-container">
+    <h2>Connection to Transcendence</h2>
+    <form method="POST">
+        <p> Username already taken please use another one</p>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-submit">Connection</button>
+    </form>
+</body>
+</html>
+

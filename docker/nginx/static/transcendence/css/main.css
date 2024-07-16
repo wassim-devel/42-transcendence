@@ -1,0 +1,76 @@
+/* Import the retro font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+.retro-navbar {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #1a1a1a;
+    border-bottom: 4px solid #ffcc00;
+}
+
+.retro-navbar .navbar-brand,
+.retro-navbar .nav-link,
+.retro-navbar .dropdown-toggle,
+.retro-navbar .btn {
+    color: #ffcc00;
+    text-shadow: 1px 1px #000;
+}
+
+.retro-navbar .nav-link:hover,
+.retro-navbar .dropdown-item:hover {
+    background-color: #333;
+    color: #fff;
+    text-shadow: 1px 1px #ff0000;
+}
+
+.retro-navbar .navbar-toggler {
+    border-color: #ffcc00;
+}
+
+.retro-navbar .navbar-toggler-icon {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="%23ffcc00" viewBox="0 0 30 30"><path stroke="rgba(0, 0, 0, 0.5)" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"/></svg>');
+}
+
+.retro-navbar .form-control {
+    border: 2px solid #ffcc00;
+    background-color: #1a1a1a;
+    color: #ffcc00;
+}
+
+.retro-navbar .btn-outline-success {
+    border-color: #ffcc00;
+    color: #ffcc00;
+}
+
+.retro-navbar .btn-outline-success:hover {
+    background-color: #ffcc00;
+    color: #1a1a1a;
+}
+
+.retro-navbar .btn-primary {
+    background-color: #ffcc00;
+    border-color: #ffcc00;
+    color: #1a1a1a;
+}
+
+.retro-navbar .btn-primary:hover {
+    background-color: #e6b800;
+    border-color: #e6b800;
+}
+
+.dropdown-menu {
+    background-color: #1a1a1a;
+    border: 2px solid #ffcc00;
+}
+
+.dropdown-item {
+    color: #ffcc00;
+}
+
+.dropdown-item:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.dropdown-divider {
+    border-color: #ffcc00;
+}

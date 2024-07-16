@@ -1,0 +1,1 @@
+touch /etc/nginx/ssl/selfsigned.key && echo "$HTTPS_PRIVATE_KEY" >> /etc/nginx/ssl/selfsigned.key

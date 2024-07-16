@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game Room</title>
+    <link rel="stylesheet" href="{% static 'transcendence/css/main.css' %}">
+    <style>
+        .container {
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            background: #1a1a1a;
+        }
+
+        .gameFrame {
+            width: 1500px;
+            height: 800px;
+        }
+
+		#score1 {
+			image-rendering: 'pixelated';
+		}
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.1.0/fontfaceobserver.standalone.js"></script>
+</head>
+<body>
+<div class="row justify-content-center">
+    <div class="col-md-6" style="width: 1000px; height: 800px;">
+        <div id="pongCanvasOnline" class="container rounded p-4" style="background: #ffcc00; margin-top: 10px; width: 900px; height: 700px; image-rendering: pixelated"></div>
+    </div>
+</div>
+</body>
+</html>

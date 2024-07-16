@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'transcendence/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Create a tournament</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+        
+            <button type="submit" class="btn-submit">Submit</button>
+        </form>
+    </div>
+
+</body>
+</html>

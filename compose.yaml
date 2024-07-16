@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_DB=transcendence
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  redis:
+    image: redis:7
+  django:
+    build: .
+    volumes:
+      - .:/code
+    #ports:
+     # - "8000:8000"
+    depends_on:
+      - db
+  nginx:
+    build:
+      context: docker/nginx/
+      args:
+        HTTPS_PRIVATE_KEY: ${HTTPS_PRIVATE_KEY}
+    ports:
+      - "8080:443"
+    volumes:
+      - ./media:/media
+      - ./docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - django
+
+
+
+volumes:
+  postgres_data:

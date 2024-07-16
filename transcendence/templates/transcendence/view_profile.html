@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Transcendence</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #ffcc00;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        .profile-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
+            border: 4px solid #ffcc00;
+        }
+
+        .card {
+            color: white;
+            background-color: #1a1a1a;
+            border: 4px solid #ffcc00;
+            box-shadow: none;
+            margin-bottom: 20px;
+        }
+
+        .card-body {
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px #000;
+        }
+
+        .card-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px #000;
+        }
+
+        #addFriendButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #ff8800;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        #addFriendButton:hover {
+            background-color: #ff5500;
+        }
+    </style>
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+</head>
+<body style="background: #e9e4e4e3">
+<div class="container">
+    <div class="card">
+        <img src="{{ account.avatar.url }}" class="profile-img" alt="Profile Image">
+        <div class="card-body">
+            <h3 class="card-title">Pseudo: {{ account.user.username }}</h3>
+            <h5 class="card-text">Ranking: <span style="color: #ff8800;">{{ ranking }}</span></h5>
+            <h5 class="card-text">Score: {{ account.score }} points</h5>
+            
+            {% if isingame %}
+                <p class="card-text">Status: <span style="color: #007bff;">In game</span></p>
+            {% elif account.status == "online" or account.user == request.user %}
+                <p class="card-text">Status: <span style="color: #28a745;">Online</span></p>
+            {% else %}
+                <p class="card-text">Status: <span style="color: #dc3545;">Offline</span></p>
+            {% endif %}
+            <h5 class="card-text">Victories: {{ victories }}</h5>
+            <h5 class="card-text">Defeats: {{ defeats }}</h5>
+            {% if request.user != account.user %}
+                <button onclick="add_friend_view('{{ account.user.username }}')" id="addFriendButton">Add as friend</button>
+            {% endif %}
+            <p id="addFriendStatus"></p>
+        </div>
+    </div>
+
+    <h1 class="mt-4 mb-4" style="font-size:2ch;">Game history</h1>
+    {% for game in games %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Game: {{ game.player1 }} vs {{ game.player2 }}</h5>
+            {% if game.linked_tournament %}
+                <p class="card-text">From tournament: {{ game.linked_tournament.name }}</p>
+            {% endif %}
+            <p class="card-text">Winner: {{ game.winner }}</p>
+            <p class="card-text">Date: {{ game.creation_date }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>

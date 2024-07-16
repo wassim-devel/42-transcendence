@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>Search results - Transcendence</title>
+    <link rel="stylesheet" href="{% static 'transcendence/css/search.css' %}">
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+</head>
+
+<body>
+<div class="container mt-5">
+    <h1 class="mb-4">Search results</h1>
+    {% for account in accounts %}
+        <ul class="list-group">
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col">{{ account.username }}</div>
+                    <div class="col text-end">
+						<a href="#view_profile?{{ account.username }}" class="btn btn-primary">See profile</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    {% endfor %}
+</div>
+
+</body>
+</html>

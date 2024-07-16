@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends</title>
+    <link rel="stylesheet" href="{% static 'transcendence/css/friends.css' %}">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <section>
+                <h1>Friends list</h1>
+                <ul id="friend-list">
+                    {% for friend in friends_list %}
+                        <li>
+                            <a href="#view_profile?{{ friend.0.user.username }}">
+                                {{ friend.0.user.username }}
+                            </a>
+                            <button class="remove-friend-btn" id="friend-{{ friend.1 }}" onclick="remove_friend('{{ friend.1 }}')">Remove friend</button>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+        <div class="col-md-6">
+            <section>
+                <h1>Pending friends list</h1>
+                <ul id="request-list">
+                    {% for friend_request in pending_requests %}
+                        {% if request.user != friend_request.from_user.user %}
+                            <li id="friend-request-{{ friend_request.id }}">
+                                {{ friend_request.from_user.user.username }}
+                                <form method="post"
+                                      action="{% url 'transcendence:accept_friend_request' friend_request.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="request_id" value="{{ friend_request.id }}">
+                                    <button type="submit" onclick="accept_friend(event, {{ friend_request.id }}, '{{ friend_request.from_user.user.username }}')">Accept</button>
+                                </form>
+                                <form method="post"
+                                      action="{% url 'transcendence:decline_friend_request' friend_request.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="request_id" value="{{ friend_request.id }}">
+                                    <button type="submit" onclick="decline_friend(event, {{ friend_request.id }})">Decline</button>
+                                </form>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+
+{% comment %} <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const removeButtons = document.querySelectorAll('.remove-friend-btn');
+        removeButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const friendshipId = this.getAttribute('data-id');
+                fetch(`/friends/remove_friend/${friendshipId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({'friendship_id': friendshipId})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.parentElement.remove();
+                        } else {
+                            alert('Failed to remove friend: ' + data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script> {% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>

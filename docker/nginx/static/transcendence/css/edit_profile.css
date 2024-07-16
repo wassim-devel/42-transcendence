@@ -1,0 +1,26 @@
+body {
+    background: #1a1a1a;
+    color: #ffcc00;
+    font-family: 'Press Start 2P', cursive;
+}
+.container {
+    padding-top: 10px;
+}
+.form-label {
+    color: #ffcc00;
+}
+.form-control {
+    background-color: #1a1a1a;
+    border: 2px solid #ffcc00;
+    color: #ffcc00;
+    text-shadow: 1px 1px #000;
+    font-family: 'Press Start 2P', cursive;
+}
+.btn-primary {
+    background-color: #ff8800;
+    border: none;
+    font-family: 'Press Start 2P', cursive;
+}
+.btn-primary:hover {
+    background-color: #ff5500;
+}

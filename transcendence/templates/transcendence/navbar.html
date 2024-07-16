@@ -1,0 +1,260 @@
+{% load static %}
+<script>
+    function leaderboard() {
+        fetch('/leaderboard/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour leaderboard');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur leaderboard:', error);
+            });
+    }
+
+    function loadScript(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function loadStyle(url) {
+        return new Promise((resolve, reject) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = url;
+            link.onload = resolve;
+            link.onerror = reject;
+            document.head.appendChild(link);
+        });
+    }
+
+    function play_local() {
+        fetch('/game_local/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour index');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Insérer le HTML dans le conteneur principal
+                document.getElementById("mainContainer").innerHTML = html;
+
+                // Charger dynamiquement les styles et scripts nécessaires
+                Promise.all([
+                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.1.0/fontfaceobserver.standalone.js"),
+                ]).then(() => {
+                    window.game_local.stop();
+                    window.game_local.start();
+                }).catch(error => {
+                    console.error('Erreur lors du chargement des scripts et styles:', error);
+                });
+            })
+            .catch(error => {
+                window.button_lock = false;
+                console.error('Erreur index:', error);
+            });
+    }
+
+    function get_gameID() {
+        fetch('/online_game/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('GameID fetch failed');
+                }
+                return response.text();
+            })
+            .then(game_id => {
+                window.location.hash = 'game_online?' + game_id;
+            }).catch(error => {
+            console.error('GameID fetch error', error);
+        });
+    }
+
+    function play_online() {
+        fetch('/game/' + window.location.hash.split('?')[1])
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour game online');
+                }
+                
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+                Promise.all([
+                    loadScript("https://cdnjs.cloudflare.com/ajax/libs/fontfaceobserver/2.1.0/fontfaceobserver.standalone.js"),
+                ]).then(() => {
+                    window.game_online.stop();
+                    window.game_online.start();
+                }).catch(error => {
+                    console.error('Erreur lors du chargement des scripts et styles:', error);
+                });
+            })
+            .catch(error => {
+                console.error('Erreur game online:', error);
+            });
+    }
+
+    function friends() {
+        fetch('/friends/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour friends');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur friends:', error);
+            });
+    }
+
+    function tournaments() {
+        fetch('/tournaments/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour tournaments');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur tournaments:', error);
+            });
+    }
+
+    function privacy_policy() {
+        fetch('/privacy-policy/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour privacypolicy');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur privacypolicy:', error);
+            });
+    }
+
+    function profile() {
+        fetch('/profile/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour profile');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+                delete_profile();
+            })
+            .catch(error => {
+                console.error('Erreur profile:', error);
+            });
+    }
+
+    function search() {
+        const name = window.location.hash.split('?')[1];
+        fetch('/search/?search_query=' + name)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Pb pour search');
+                }
+                return response.text();
+            })
+            .then(html => {
+                document.getElementById("mainContainer").innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erreur search:', error);
+            });
+    }
+
+    const routes = {
+        'game_online': play_online,
+        'leaderboard': leaderboard,
+        'profile': profile,
+        'friends': friends,
+        'tournaments': tournaments,
+        'privacy_policy': privacy_policy,
+        'view_profile': view_profile,
+        'search': search,
+    }
+    const hash_change_handler = async () => {
+        const hash = window.location.hash.replace('#', '');
+        const location = hash.split('?')[0];
+
+        if (location.length === 0) {
+            play_local();
+        } else {
+            routes[location]();
+        }
+    }
+    window.addEventListener("hashchange", hash_change_handler)
+    window.addEventListener('DOMContentLoaded', hash_change_handler);
+
+</script>
+<link rel="stylesheet" href="{% static 'transcendence/css/main.css' %}">
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary retro-navbar">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Transcendence</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="#">Play local</a>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" onclick=get_gameID()>Play online</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#leaderboard">Leaderboard</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        Dropdown
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#friends">Friends</a></li>
+                        <li><a class="dropdown-item" href="#tournaments">Tournaments</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="#privacy_policy">Privacy Policy</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <input class="form-control me-2" type="search" id="search_query" placeholder="Search"
+                       aria-label="Search">
+                <a class="btn btn-outline-success" href=''
+                   onclick="this.href='#search?'+document.getElementById('search_query').value"
+                   type="submit">Search</button>
+                    <a href="#profile" class="btn btn-primary" role="button">Profile</a>
+            </div>
+        </div>
+    </div>
+</nav>

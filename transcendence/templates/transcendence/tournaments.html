@@ -1,0 +1,180 @@
+{% load custom_filters %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tournaments</title>
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #ffcc00;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 1px 1px #000;
+        }
+
+        #tournament-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #tournament-list li {
+            background-color: #333;
+            border: 2px solid #ffcc00;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #tournament-list li h3 {
+            margin-top: 0;
+        }
+
+        #tournament-list li p {
+            margin-bottom: 5px;
+        }
+
+        #tournament-list li button {
+            background-color: #ffcc00;
+            border: none;
+            color: #1a1a1a;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        #tournament-list li button:hover {
+            background-color: #ff0000;
+            color: #fff;
+        }
+
+        .games-list {
+            background-color: #333;
+            border: 2px solid #ffcc00;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .games-list h3 {
+            margin-top: 0;
+        }
+
+        .games-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .games-list ul li {
+            margin-bottom: 5px;
+        }
+
+        .games-list ul li a {
+            color: #ffcc00;
+            text-decoration: none;
+        }
+
+        .games-list ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .create-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .create-buttons button {
+            margin: 10px;
+            background-color: #ffcc00;
+            border: none;
+            color: #1a1a1a;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .create-buttons button:hover {
+            background-color: #ff0000;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="create-buttons">
+        <label for="nameTournament">Name of tournament</label>
+        <input type="text" id="nameTournament" name="nameTournament" required>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <button onclick="create_tournament('{{ account.user.username }}', '{{ account.tournament_pseudo }}')">Create a tournament</button>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h1>Here are the tournaments:</h1>
+            <ul id="tournament-list">
+                {% for tournament in tournaments %}
+                    {% if tournament.stage2game.status != 'finished' %}
+                        <li id="li-tournament-{{ tournament.pk }}">
+                            <h3>{{ tournament.name }}</h3>
+                            {% if request.user.account not in tournament.users.all %}
+                                        <button id="join-button-{{ tournament.pk }}" onclick="join_tournament('{{ tournament.pk }}', '{{ request.user.username }}')">Join</button>
+                            {% endif %}
+                            {% if request.user.account in tournament.users.all and tournament.users.count != 4 %}
+                                <button id="quit-button-{{ tournament.pk }}" onclick="quit_tournament('{{ tournament.pk }}', '{{ request.user.username }}')">Quit</button>
+                            {% endif %}
+                            <p>Users:</p>
+                            <ul id="list_users_{{ tournament.pk }}">
+                                {% for acc in tournament.users.all %}
+                                    <li id="acc-{{ acc.user.username }}-{{ tournament.pk }}">{{ acc.user.username }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% if request.user == tournament.admin.user and tournament.users.count != 4 %}
+                                <button onclick="delete_tournament('{{ tournament.pk }}')">Delete tournament</button>
+                            {% endif %}
+                            <div class="games-list">
+                                <h3>Games</h3>
+                                {% if not tournament.stage1games.all|all_finished %}
+                                    <p>Demi finals:</p>
+                                    <ul>
+                                        {% for game in tournament.stage1games.all %}
+                                            {% if game.status != "finished" %}
+                                                {% if user.account == game.player1 %}
+                                                    <li><a href="#game_online?{{ game.id }}"
+                                                           style="color:cadetblue ;">{{ game }}</a></li>
+                                                {% elif user.account == game.player2 %}
+                                                    <li><a href="#game_online?{{ game.id }}"
+                                                           style="color:cadetblue ;">{{ game }}</a></li>
+                                                {% else %}
+                                                    <li><a>{{ game }}</a></li>
+                                                {% endif %}
+                                                
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                {% elif tournament.stage1games.all|all_finished and tournament.users.count == 4 %}
+                                    <p>Final:</p>
+                                    <a href="#game_online?{{ tournament.stage2game.id }}">{{ tournament.stage2game }}</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

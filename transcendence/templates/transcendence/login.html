@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login page</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'transcendence/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Connection to Transcendence</h2>
+        <form action="/login/" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-submit">Connection</button>
+            <p>Don't have an account ? <a href="/register/">Register</a></p>
+        </form>
+        <a href="{% url 'transcendence:oauth2_authorize' %}">Login with OAuth2</a>
+    </div>
+    
+</body>
+</html>

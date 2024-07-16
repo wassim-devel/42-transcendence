@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Transcendence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'transcendence/css/profile.css' %}">
+    <script src="{% static 'transcendence/mark_online.js' %}"></script>
+</head>
+<body style="background: #e9e4e4e3">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <img src="{{ account.avatar.url }}" class="profile-img" alt="...">
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <h5 class="card-title">Pseudo: {{ user.username }}</h5>
+                    {% else %}
+                        <h5 class="card-title">Pseudo: default</h5>
+                    {% endif %}
+                    <p class="card-text">Score: {{ account.score }} points</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Options</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><a onclick="edit_profile()">Edit your information</a></li>
+                        <li class="list-group-item"><a onclick="uploadpdp()">Change the profile picture</a></li>
+                        <li class="list-group-item"><a href="{% url 'transcendence:logout' %}">Sign out</a></li>
+                        <li class="list-group-item">
+                            <button style="all: unset" id="delete_button">Delete account</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    {% comment %} const button = document.getElementById("delete_button");
+    button.addEventListener('click', function () {
+        fetch('/profile/delete/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/register/';
+                } else {
+                    alert('Failed to delete account: ' + data.error);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }); {% endcomment %}
+</script>
+</body>
+</html>
